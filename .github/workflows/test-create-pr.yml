@@ -1,0 +1,50 @@
+name: Test PR Creation
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create_pr:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check branch
+        run: |
+          if [ "${{ github.ref_name }}" != "master" ]; then
+            echo "This workflow can only be run from the master branch."
+            exit 1
+          fi  
+
+      - name: Create a new branch
+        run: |
+          BRANCH_NAME="test-branch-$(date +'%Y%m%d%H%M%S')"
+          git checkout -b $BRANCH_NAME
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Make changes
+        run: |
+          UNIQUE_TEXT="This is a test PR created by GitHub Actions on $(date). Triggered by ${{ github.actor }} in run ${{ github.run_id }}."
+          echo $UNIQUE_TEXT >> test-file.txt
+          git add test-file.txt
+          git commit -m "Add test file for PR creation"
+
+      - name: Push the new branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push origin ${{ env.branch_name }}
+
+      - name: Create a Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.branch_name }}
+          base: main
+          title: "Test PR from GitHub Actions"
+          body: |
+            This is a test Pull Request created by GitHub Actions.
+            The changes include:
+            - Adding a test file.
