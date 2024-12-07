@@ -17,6 +17,9 @@ jobs:
           echo "This workflow cannot be run from the main branch."
           exit 1
 
+      - name: Install GitHub CLI
+        run: sudo apt-get install -y gh
+
       - name: Create a new branch
         run: |
           git config user.email "actions@github.com"
@@ -37,3 +40,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git push origin ${{ env.branch_name }}
+          
+      - name: Authenticate GitHub CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Create a Pull Request
+        run: |
+          gh pr create \
+            --title "Test PR from GitHub Actions" \
+            --body "This is a test Pull Request created by GitHub CLI in workflows." \
+            --head ${{ env.branch_name }} \
+            --base main    
