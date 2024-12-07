@@ -13,13 +13,15 @@ jobs:
 
       - name: Check branch
         run: |
-          if [ "${{ github.ref_name }}" != "master" ]; then
-            echo "This workflow can only be run from the master branch."
+          if [ "${{ github.ref_name }}" != "main" ]; then
+            echo "This workflow can only be run from the main branch."
             exit 1
           fi  
 
       - name: Create a new branch
         run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
           BRANCH_NAME="test-branch-$(date +'%Y%m%d%H%M%S')"
           git checkout -b $BRANCH_NAME
           echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
