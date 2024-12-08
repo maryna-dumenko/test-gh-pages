@@ -30,10 +30,15 @@ jobs:
 
       - name: Make changes
         run: |
-          UNIQUE_TEXT="This is a test PR created by GitHub Actions on $(date). Triggered by ${{ github.actor }} in run ${{ github.run_id }}."
+          UNIQUE_TEXT="This is a test PR created by GitHub Actions on. Triggered by ${{ github.actor }} in run."
           echo $UNIQUE_TEXT >> test-file.txt
-          git add test-file.txt
-          git commit -m "Add test file for PR creation"
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No changes to commit. Exiting workflow."
+            exit 0
+          else
+            git add test-file.txt
+            git commit -m "Add test file for PR creation"
+          fi
 
       - name: Push the new branch
         env:
