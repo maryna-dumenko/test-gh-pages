@@ -33,7 +33,7 @@ jobs:
           UNIQUE_TEXT="This is a test PR created by GitHub Actions on. Triggered by ${{ github.actor }} in run."
           if [ -z "$(git status --porcelain)" ]; then
             echo "No changes to commit. Exiting workflow."
-            exit 0
+            exit 1
           else
             git add test-file.txt
             git commit -m "Add test file for PR creation"
